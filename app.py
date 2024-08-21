@@ -26,6 +26,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 
 def check_required_env_vars():  
     print("hi")
+    list=[]
     """Check required environment variables"""
     required_env_vars = [
         "API_KEY",

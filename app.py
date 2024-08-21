@@ -11,7 +11,7 @@
 #  limitations under the License.
 import json  
 import os    
-from typing import List
+from typing import List  
 
 import click
 import requests

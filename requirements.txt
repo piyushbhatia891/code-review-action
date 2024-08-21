@@ -10,6 +10,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 langchain_google_genai
+langchain_openai
 click==8.1.3
 loguru==0.7.0
 

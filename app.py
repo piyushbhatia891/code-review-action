@@ -15,7 +15,8 @@ from typing import List
 
 import click
 import requests
-from langchain import HuggingFaceHub, LLMChain, PromptTemplate
+from langchain import LLMChain
+from langchain.prompts import PromptTemplate
 from loguru import logger
 from langchain_google_genai import ChatGoogleGenerativeAI
 
@@ -89,7 +90,7 @@ def get_review(
     )
     '''
     for chunked_diff in chunked_diff_list:
-        question=chunked_diff
+        question = chunked_diff
         template = """Provide a concise summary of the bug found in the code, describing its characteristics, 
         location, and potential effects on the overall functionality and performance of the application.
         Present the potential issues and errors first, following by the most important findings, in your summary
@@ -99,18 +100,22 @@ def get_review(
 
         {question}
         """
-
+        
         prompt = PromptTemplate(template=template, input_variables=["question"])
-        print("prompt : "+prompt.template)
-        llm_chain = LLMChain(prompt=prompt, llm=llm)
-        review_result = llm_chain.run(question)
+        print("prompt : " + prompt.template)
+        print("before chain:")
+        llm_chain = prompt | llm
+        print("after chain:")
+        review_result = llm_chain.invoke({"question": question})
+        print("result")
         chunked_reviews.append(review_result)
-
+        print("results found")
+    
     # If the chunked reviews are only one, return it
     if len(chunked_reviews) == 1:
         return chunked_reviews, chunked_reviews[0]
-
-    question="\n".join(chunked_reviews)
+    
+    question = "\n".join(chunked_reviews)
     template = """Summarize the following file changed in a pull request submitted by a developer on GitHub,
     focusing on major modifications, additions, deletions, and any significant updates within the files.
     Do not include the file name in the summary and list the summary with bullet points.
@@ -119,9 +124,14 @@ def get_review(
     Diff:
     {question}
     """
+    
     prompt = PromptTemplate(template=template, input_variables=["question"])
-    llm_chain = LLMChain(prompt=prompt, llm=llm)
-    summarized_review = llm_chain.run(question)
+    print("prompt2 : " + prompt.template)
+    print("before chain2:")
+    llm_chain = prompt | llm
+    print("after chain2:")
+    summarized_review = llm_chain.invoke({"question": question})
+    print("results found2")
     return chunked_reviews, summarized_review
 
 
@@ -161,7 +171,7 @@ def main(
     logger.level(log_level)
     # Check if necessary environment variables are set or not
     check_required_env_vars()
-    print("diff:"+diff)
+    print("diff:" + diff)
     # Request a code review
     chunked_reviews, summarized_review = get_review(
         diff=diff,
@@ -174,7 +184,7 @@ def main(
     )
     logger.debug(f"Summarized review: {summarized_review}")
     logger.debug(f"Chunked reviews: {chunked_reviews}")
-
+    
     # Format reviews
     review_comment = format_review_comment(summarized_review=summarized_review,
                                            chunked_reviews=chunked_reviews)

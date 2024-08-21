@@ -101,7 +101,7 @@ def get_review(
         {question}
         """
         
-        prompt = PromptTemplate(template=template, input_variables=["question"])
+        prompt = PromptTemplate.from_template(template)
         print("prompt : " + prompt.template)
         print("before chain:")
         llm_chain = prompt | llm
@@ -125,7 +125,7 @@ def get_review(
     {question}
     """
     
-    prompt = PromptTemplate(template=template, input_variables=["question"])
+    prompt = PromptTemplate.from_template(template)
     print("prompt2 : " + prompt.template)
     print("before chain2:")
     llm_chain = prompt | llm

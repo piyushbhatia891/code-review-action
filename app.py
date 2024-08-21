@@ -49,6 +49,8 @@ def create_a_comment_to_pull_request(
         "commit_id": git_commit_hash,
         "event": "COMMENT"
     }
+    print("git commit hash:"+git_commit_hash)
+    print("body:" + body)
     url = f"https://api.github.com/repos/{github_repository}/pulls/{pull_request_number}/reviews"
     response = requests.post(url, headers=headers, data=json.dumps(data))
     return response
@@ -103,7 +105,7 @@ def get_review(
         llm_chain = prompt | llm
         print("before chain:")
         review_result = llm_chain.invoke({"question": question})
-        
+        print("review result:"+review_result)
         chunked_reviews.append(review_result)
     
     # If the chunked reviews are only one, return it
@@ -122,6 +124,7 @@ def get_review(
     prompt = PromptTemplate(template=template, input_variables=["question"])
     llm_chain = LLMChain(prompt=prompt, llm=llm)
     summarized_review = llm_chain.run(question)
+    print("summarized result:" + summarized_review)
     return chunked_reviews, summarized_review
 
 

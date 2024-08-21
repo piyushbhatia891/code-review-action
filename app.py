@@ -87,7 +87,8 @@ def get_review(
         max_tokens=None,
         timeout=None,
         max_retries=2,
-        openai_api_key="5bcb6034fbac40c182ce285cf325249b"
+        openai_api_key="5bcb6034fbac40c182ce285cf325249b",
+        azure_endpoint='https://ai-proxy.lab.epam.com'
         # other params...
     )
     '''

@@ -16,7 +16,7 @@ from typing import List
 import click   
 import requests
 from langchain import HuggingFaceHub, LLMChain, PromptTemplate
-from loguru import logger
+from loguru import logger   
 
 
 def check_required_env_vars():

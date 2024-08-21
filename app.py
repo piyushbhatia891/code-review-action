@@ -15,10 +15,8 @@ from typing import List
 
 import click
 import requests
-from langchain import LLMChain
-from langchain.prompts import PromptTemplate
+from langchain import LLMChain,HuggingFaceHub,PromptTemplate
 from loguru import logger
-from langchain_google_genai import ChatGoogleGenerativeAI
 
 
 def check_required_env_vars():
@@ -78,17 +76,16 @@ def get_review(
     chunked_diff_list = chunk_string(input_string=diff, chunk_size=prompt_chunk_size)
     # Get summary by chunk
     chunked_reviews = []
-    llm = ChatGoogleGenerativeAI(model="gemini-pro", google_api_key="AIzaSyAqP1tbsekrAoZjSM02OiefzPw_nMzPs9I")
-    '''
+    #llm = ChatGoogleGenerativeAI(model="gemini-pro", google_api_key="AIzaSyAqP1tbsekrAoZjSM02OiefzPw_nMzPs9I")
     llm = HuggingFaceHub(
-        repo_id=repo_id,
+        repo_id='tiiuae/falcon-7b-instruct',
         model_kwargs={"temperature": temperature,
                       "max_new_tokens": max_new_tokens,
                       "top_p": top_p,
                       "top_k": top_k},
                       huggingfacehub_api_token=os.getenv("API_KEY")
     )
-    '''
+    llm.client.api_url = 'https://api-inference.huggingface.co/models/tiiuae/falcon-7b-instruct'
     for chunked_diff in chunked_diff_list:
         question = chunked_diff
         template = """Provide a concise summary of the bug found in the code, describing its characteristics, 
@@ -101,15 +98,13 @@ def get_review(
         {question}
         """
         
-        prompt = PromptTemplate.from_template(template)
+        prompt = PromptTemplate(template=template, input_variables=["question"])
         print("prompt : " + prompt.template)
-        print("before chain:")
         llm_chain = prompt | llm
-        print("after chain:")
+        print("before chain:")
         review_result = llm_chain.invoke({"question": question})
-        print("result")
+        
         chunked_reviews.append(review_result)
-        print("results found")
     
     # If the chunked reviews are only one, return it
     if len(chunked_reviews) == 1:
@@ -124,14 +119,9 @@ def get_review(
     Diff:
     {question}
     """
-    
-    prompt = PromptTemplate.from_template(template)
-    print("prompt2 : " + prompt.template)
-    print("before chain2:")
-    llm_chain = prompt | llm
-    print("after chain2:")
-    summarized_review = llm_chain.invoke({"question": question})
-    print("results found2")
+    prompt = PromptTemplate(template=template, input_variables=["question"])
+    llm_chain = LLMChain(prompt=prompt, llm=llm)
+    summarized_review = llm_chain.run(question)
     return chunked_reviews, summarized_review
 
 

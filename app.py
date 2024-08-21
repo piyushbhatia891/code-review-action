@@ -12,7 +12,6 @@
 import json  
 import os    
 from typing import List  
-
 import click 
 import requests
 from langchain import HuggingFaceHub, LLMChain, PromptTemplate

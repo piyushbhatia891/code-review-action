@@ -101,6 +101,7 @@ def get_review(
         """
 
         prompt = PromptTemplate(template=template, input_variables=["question"])
+        print("prompt : "+prompt)
         llm_chain = LLMChain(prompt=prompt, llm=llm)
         review_result = llm_chain.run(question)
         chunked_reviews.append(review_result)

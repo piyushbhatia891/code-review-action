@@ -156,7 +156,7 @@ def main(
     logger.level(log_level)
     # Check if necessary environment variables are set or not
     check_required_env_vars()
-
+    print("diff:"+diff)
     # Request a code review
     chunked_reviews, summarized_review = get_review(
         diff=diff,

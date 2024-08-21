@@ -16,7 +16,9 @@ from typing import List
 import click   
 import requests
 from langchain import HuggingFaceHub, LLMChain, PromptTemplate
+
 from loguru import logger   
+from langchain_google_genai import ChatGoogleGenerativeAI
 
 
 def check_required_env_vars():
@@ -76,6 +78,8 @@ def get_review(
     chunked_diff_list = chunk_string(input_string=diff, chunk_size=prompt_chunk_size)
     # Get summary by chunk
     chunked_reviews = []
+    llm = ChatGoogleGenerativeAI(model="gemini-pro", google_api_key="AIzaSyAqP1tbsekrAoZjSM02OiefzPw_nMzPs9I")
+    '''
     llm = HuggingFaceHub(
         repo_id=repo_id,
         model_kwargs={"temperature": temperature,
@@ -84,6 +88,7 @@ def get_review(
                       "top_k": top_k},
                       huggingfacehub_api_token=os.getenv("API_KEY")
     )
+    '''
     for chunked_diff in chunked_diff_list:
         question=chunked_diff
         template = """Provide a concise summary of the bug found in the code, describing its characteristics, 
@@ -156,7 +161,7 @@ def main(
     logger.level(log_level)
     # Check if necessary environment variables are set or not
     check_required_env_vars()
-
+    print("diff:"+diff)
     # Request a code review
     chunked_reviews, summarized_review = get_review(
         diff=diff,

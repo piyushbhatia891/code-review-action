@@ -21,7 +21,7 @@ from loguru import logger
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 
-def check_required_env_vars():
+def check_required_env_vars():  
     """Check required environment variables"""
     required_env_vars = [
         "API_KEY",

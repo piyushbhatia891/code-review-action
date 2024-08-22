@@ -51,7 +51,7 @@ jobs:
           secretKey: ${{ secrets.SECRET_KEY }}
           sessionToken: ${{ secrets.SESSION_TOKEN }}
           apiKey: "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"
-          githubToken: "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"
+          githubToken: ${{ secrets.ACCESS_KEY }}
           githubRepository: "code-review-action"
           githubPullRequestNumber: 1
           gitCommitHash: ${{ github.event.pull_request.head.sha }}

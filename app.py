@@ -50,7 +50,7 @@ def create_a_comment_to_pull_request(
         path:str):
     """Create a comment to a pull request"""
     headers = {
-        "Accept": "application/vnd.github+json",
+        "Accept": "application/vnd.github.v3.patch",
         "authorization": f"Bearer {github_token}"
     }
     data = {

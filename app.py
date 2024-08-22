@@ -15,7 +15,7 @@ import os
 from typing import List   
 
 import click    
-import requests 
+import requests   
 from langchain import LLMChain
 from langchain.prompts import PromptTemplate
 from loguru import logger 

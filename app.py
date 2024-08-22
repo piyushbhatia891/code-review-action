@@ -60,7 +60,7 @@ def create_a_comment_to_pull_request(
     print("git commit hash:" + git_commit_hash)
     url = f"https://api.github.com/repos/{github_repository}/pulls/{pull_request_number}/reviews"
     response = requests.post(url, headers=headers, data=json.dumps(data))
-    print("response:"+response)
+    print("response:"+response.text)
     return response
 
 

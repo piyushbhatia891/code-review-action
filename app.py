@@ -128,7 +128,7 @@ def get_review(
             ]
         )
         chain = prompt | llm
-        review_result=chain.invoke({"question": question})
+        review_result=chain.invoke({"question": question}).content
         '''
         prompt = PromptTemplate(template=template, input_variables=["question"])
         print("prompt : " + prompt.template)
@@ -162,7 +162,7 @@ def get_review(
         ]
     )
     chain = prompt | llm
-    summarized_review = chain.invoke({"question": question})
+    summarized_review = chain.invoke({"question": question}).content
     '''
     prompt = PromptTemplate(template=template, input_variables=["question"])
     llm_chain = LLMChain(prompt=prompt, llm=llm)

@@ -43,7 +43,7 @@ jobs:
             cat "diff.txt";
             echo 'EOF';
           } >> $GITHUB_OUTPUT
-      - uses: digitalneedstech/LLM-Code-Review@1
+      - uses: digitalneedstech/LLM-Code-Review@1.0.1
         name: "Code Review"
         id: review
         with:

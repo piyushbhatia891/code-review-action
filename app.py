@@ -136,7 +136,7 @@ def get_review(
         print("before chain:")
         review_result = llm_chain.invoke({"question": question})
         '''
-        print("review result:" + review_result.content)
+        print("review result:" + review_result)
         chunked_reviews.append(review_result)
     
     # If the chunked reviews are only one, return it

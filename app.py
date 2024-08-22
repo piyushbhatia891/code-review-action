@@ -50,7 +50,7 @@ def create_a_comment_to_pull_request(
         path:str):
     """Create a comment to a pull request"""
     headers = {
-        "Accept": "application/vnd.github.v3.patch",
+        "Accept": "application/vnd.github+json",
         "authorization": f"Bearer {github_token}"
     }
     data = {
@@ -144,7 +144,6 @@ def get_review(
         json_review=json.loads(review_result)
         
         for value in json_review:
-            print("review result:" + value["comment"])
             create_a_comment_to_pull_request(
                 github_token=os.getenv("GITHUB_TOKEN"),
                 github_repository=os.getenv("GITHUB_REPOSITORY"),

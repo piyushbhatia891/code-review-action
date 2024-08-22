@@ -43,19 +43,17 @@ jobs:
             cat "diff.txt";
             echo 'EOF';
           } >> $GITHUB_OUTPUT
-      - uses: ./
+      - uses: digitalneedstech/LLM-Code-Review@1
         name: "Code Review"
         id: review
         with:
           accessKey: ${{ secrets.ACCESS_KEY }}
           secretKey: ${{ secrets.SECRET_KEY }}
           sessionToken: ${{ secrets.SESSION_TOKEN }}
-          apiKey: ${{ secrets.HUGGINGFACE_TOKEN }}
           githubToken: ${{ secrets.TOKEN }}
           githubRepository: "code-review-action"
           githubPullRequestNumber: 1
           gitCommitHash: ${{ github.event.pull_request.head.sha }}
-          repoId: "meta-llama/Llama-2-7b-chat-hf"
           temperature: "0.2"
           maxNewTokens: "250"
           topK: "50"

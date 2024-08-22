@@ -18,7 +18,7 @@ import click
 import requests
 from langchain import LLMChain
 from langchain.prompts import PromptTemplate
-from loguru import logger
+from loguru import logger 
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 

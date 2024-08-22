@@ -46,7 +46,8 @@ def create_a_comment_to_pull_request(
         github_repository: str,
         pull_request_number: int,
         git_commit_hash: str,
-        body: str):
+        body: str,start_line:int,
+        path:str):
     """Create a comment to a pull request"""
     headers = {
         "Accept": "application/vnd.github.v3.patch",
@@ -55,7 +56,9 @@ def create_a_comment_to_pull_request(
     data = {
         "body": body,
         "commit_id": git_commit_hash,
-        "event": "COMMENT"
+        "event": "COMMENT",
+        "line": start_line,
+        "path": path
     }
     print("git commit hash:" + git_commit_hash)
     url = f"https://api.github.com/repos/{github_repository}/pulls/{pull_request_number}/reviews"
@@ -114,7 +117,8 @@ def get_review(
         location, and potential effects on the overall functionality and performance of the application.
         Present the potential issues and errors first, following by the most important findings, in your summary
         Important: Include block of code / diff in the summary also the line number.
-
+        Important: Include block of code / diff in the summary also the line number.
+    the summary should be a json formatted list with objects containing line number, comment and file name for the line
         Diff:
 
         {question}
@@ -137,9 +141,22 @@ def get_review(
         print("before chain:")
         review_result = llm_chain.invoke({"question": question})
         '''
-        print("review result:" + review_result)
-        chunked_reviews.append(review_result)
-    
+        json_review=json.loads(review_result)
+        
+        for value in json_review:
+            print("review result:" + value["comment"])
+            create_a_comment_to_pull_request(
+                github_token=os.getenv("GITHUB_TOKEN"),
+                github_repository=os.getenv("GITHUB_REPOSITORY"),
+                pull_request_number=int(os.getenv("GITHUB_PULL_REQUEST_NUMBER")),
+                git_commit_hash=os.getenv("GIT_COMMIT_HASH"),
+                body=value["comment"],
+                path=value["fileName"],
+                start_line=value["lineNumber"]
+            )
+        
+        #chunked_reviews.append(review_result)
+    '''
     # If the chunked reviews are only one, return it
     if len(chunked_reviews) == 1:
         return chunked_reviews, chunked_reviews[0]
@@ -149,7 +166,8 @@ def get_review(
     focusing on major modifications, additions, deletions, and any significant updates within the files.
     Do not include the file name in the summary and list the summary with bullet points.
     Important: Include block of code / diff in the summary also the line number.
-    
+    Important: Include block of code / diff in the summary also the line number.
+    the summary should be a json formatted list with objects containing line number, comment and file name for the line
     Diff:
     {question}
     """
@@ -164,14 +182,10 @@ def get_review(
     )
     chain = prompt | llm
     summarized_review = chain.invoke({"question": question}).content
-    '''
-    prompt = PromptTemplate(template=template, input_variables=["question"])
-    llm_chain = LLMChain(prompt=prompt, llm=llm)
-    summarized_review = llm_chain.run(question)
-    '''
+    
     print("summarized result:" + summarized_review)
     return chunked_reviews, summarized_review
-
+    '''
 
 def format_review_comment(summarized_review: str, chunked_reviews: List[str]) -> str:
     """Format reviews"""
@@ -211,7 +225,7 @@ def main(
     check_required_env_vars()
     print("diff:" + diff)
     # Request a code review
-    chunked_reviews, summarized_review = get_review(
+    get_review(
         diff=diff,
         repo_id=repo_id,
         temperature=temperature,
@@ -220,6 +234,7 @@ def main(
         top_k=top_k,
         prompt_chunk_size=diff_chunk_size
     )
+    '''
     #logger.debug(f"Summarized review: {summarized_review}")
     #logger.debug(f"Chunked reviews: {chunked_reviews}")
     
@@ -234,6 +249,7 @@ def main(
         git_commit_hash=os.getenv("GIT_COMMIT_HASH"),
         body=review_comment
     )
+    '''
 
 
 if __name__ == "__main__":

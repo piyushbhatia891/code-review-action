@@ -60,12 +60,8 @@ def create_a_comment_to_pull_request(
         "line": start_line,
         "path": path
     }
-    print("git commit hash:" + git_commit_hash)
-    print("git repo:"+github_repository)
-    print("pull request:" + str(pull_request_number))
     url = f"https://api.github.com/repos/{github_repository}/pulls/{pull_request_number}/comments"
     response = requests.post(url, headers=headers, data=json.dumps(data))
-    print("response:"+response.text)
     return response
 
 
@@ -91,8 +87,6 @@ def get_review(
     chunked_diff_list = chunk_string(input_string=diff, chunk_size=prompt_chunk_size)
     # Get summary by chunk
     chunked_reviews = []
-    # llm = ChatGoogleGenerativeAI(model="gemini-pro", google_api_key="AIzaSyAqP1tbsekrAoZjSM02OiefzPw_nMzPs9I")
-
     llm = ChatBedrock(
         client=boto3.client(
             service_name="bedrock-runtime",
@@ -135,7 +129,7 @@ def get_review(
         )
         chain = prompt | llm
         review_result=chain.invoke({"question": question}).content
-        print("review result:"+review_result)
+        #print("review result:"+review_result)
         '''
         prompt = PromptTemplate(template=template, input_variables=["question"])
         print("prompt : " + prompt.template)
@@ -224,7 +218,7 @@ def main(
     logger.level(log_level)
     # Check if necessary environment variables are set or not
     check_required_env_vars()
-    print("diff:" + diff)
+    #print("diff:" + diff)
     # Request a code review
     get_review(
         diff=diff,

@@ -50,7 +50,7 @@ jobs:
           accessKey: ${{ secrets.ACCESS_KEY }}
           secretKey: ${{ secrets.SECRET_KEY }}
           sessionToken: ${{ secrets.SESSION_TOKEN }}
-          apiKey: "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"
+          apiKey: ${{ secrets.HUGGINGFACE_TOKEN }}
           githubToken: ${{ secrets.TOKEN }}
           githubRepository: "code-review-action"
           githubPullRequestNumber: 1

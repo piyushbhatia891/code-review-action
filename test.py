@@ -128,8 +128,8 @@ def create_a_comment_to_pull_request(
 
 
 if __name__ == '__main__':
-    #line =call_llm_get_results()
-    
+    line =call_llm_get_results()
+    '''
     create_a_comment_to_pull_request(
         github_token="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",
         github_repository="code-review-action",
@@ -138,4 +138,4 @@ if __name__ == '__main__':
         start_line=17,
         path="app.py",
         body="Missing newline at end of file. This can cause issues with some text editors and version control systems.")
-    
+    '''

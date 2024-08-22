@@ -51,6 +51,18 @@ inputs:
     description: "Log level"
     required: false
     default: "INFO"
+  accessKey:
+    description: "Access Key"
+    required: true
+    default: "INFO"
+  secretKey:
+    description: "Secret Key"
+    required: true
+    default: "INFO"
+  sessionToken:
+    description: "Session Token"
+    required: true
+    default: "INFO"
 runs:
   using: docker
   image: Dockerfile
@@ -60,6 +72,9 @@ runs:
     GITHUB_REPOSITORY: ${{ inputs.githubRepository }}
     GITHUB_PULL_REQUEST_NUMBER: ${{ inputs.githubPullRequestNumber }}
     GIT_COMMIT_HASH: ${{ inputs.gitCommitHash }}
+    AWS_ACCESS_KEY_ID: ${{inputs.accessKey}}
+    AWS_SECRET_ACCESS_KEY: ${{inputs.secretKey}}
+    AWS_SESSION_TOKEN: ${{inputs.sessionToken}}
   args:
     - "--repo-id=${{ inputs.repoId }}"
     - "--temperature=${{ inputs.temperature }}"

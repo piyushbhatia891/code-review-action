@@ -11,6 +11,9 @@
 #  limitations under the License.
 langchain_google_genai
 langchain_openai
+langchain_aws
+boto3
+langchain_core
 click==8.1.3
 loguru==0.7.0
 

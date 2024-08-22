@@ -18,7 +18,11 @@ import requests
 from langchain import LLMChain, HuggingFaceHub, PromptTemplate
 from langchain_openai import AzureChatOpenAI
 from loguru import logger
-
+from langchain_aws import ChatBedrock
+from langchain import PromptTemplate, LLMChain
+from langchain_core.prompts import ChatPromptTemplate
+import os
+import boto3
 
 def check_required_env_vars():
     """Check required environment variables"""
@@ -28,6 +32,9 @@ def check_required_env_vars():
         "GITHUB_REPOSITORY",
         "GITHUB_PULL_REQUEST_NUMBER",
         "GIT_COMMIT_HASH",
+        "AWS_ACCESS_KEY_ID",
+        "AWS_SECRET_ACCESS_KEY",
+        "AWS_SESSION_TOKEN"
     ]
     for required_env_var in required_env_vars:
         if os.getenv(required_env_var) is None:
@@ -80,16 +87,17 @@ def get_review(
     # Get summary by chunk
     chunked_reviews = []
     # llm = ChatGoogleGenerativeAI(model="gemini-pro", google_api_key="AIzaSyAqP1tbsekrAoZjSM02OiefzPw_nMzPs9I")
-    llm = AzureChatOpenAI(
-        azure_deployment="gpt-35-turbo",  # or your deployment
-        api_version="2023-06-01-preview",  # or your api version
-        temperature=0,
-        max_tokens=None,
-        timeout=None,
-        max_retries=2,
-        openai_api_key="5bcb6034fbac40c182ce285cf325249b",
-        azure_endpoint='https://ai-proxy.lab.epam.com'
-        # other params...
+
+    llm = ChatBedrock(
+        client=boto3.client(
+            service_name="bedrock-runtime",
+            region_name="us-east-1",
+            aws_access_key_id="ASIA6GBMC4A6NWZP6AVU",
+            aws_secret_access_key="/CLlDZx5vlPtzEPopTVfEWJzHd73tL5h6/o3opRA",
+            aws_session_token="IQoJb3JpZ2luX2VjEH4aCXVzLWVhc3QtMSJHMEUCIQDFRFoz4CsdG9eubdRDeEoBeOnITHNQIL95szzHTdmqqgIgY5Il9RWLfPlnjV3VFZcyJnj6UQuMpfQOk+kpb3xVUi4qlAMIh///////////ARAAGgw5NzUwNTAwMzkzNTYiDLxM7a+ROaXrBE/F9iroAsSRIniH40MxSQdLKJpQxzuybh9eEKnZz2z5rWay1AESD66LdICsQ8TKuNxmbm6VL6DSgfsjAuU8FTl0dI79d648NMxuFphVZ9L9VtYFtYDc6+x+sHgmNCPA6IMK7AYE1B6St53ABWBlnYgv4pD9SsH4d8xVbjoSCbIRjEnz+HUkPDUV0t6Zd+VMKzrLMMiBpp+ZMLcgjgUaED9urYuBVfxxvod4+pqN49r19Wk8aRKM3phJKvRnq+rH34pSpFmoocQCxnyuNFQxjxrpt7MjMYjZd/zGKP8H2nI/afAtrQ5z02FuZyaWJG8oFZWqpVgXJc2z7IZ/5UgAXAxdnn1VMafWbanz1x1OMOTKhxXl8HwcDxzG9bYpryEFDEGzt647jCLAv54/gvGsWTEZJxirim/VMBJ/i6dWz+vUzGuPna4mnq3EMCJhwOoPvzn0OrrSvX2LZ8fNw/aF/cRIFtM4QhFN1uY93wSlxzDtnpu2BjqmAb4cn9D9pfXZvAUMfGeiJnwC8ZF2immPokNPJ4Ch5cuK8EIPPTwaMwEwbv00jiLPIrq7qEIMso5Wk3a0+j1y7XwAIhhD98+P9YMg0rzwKa9yq4b43I0ISaNtRd3byuNeVKKT1LVpmFN4u+3eArU8FAhDMe36j5cv4roL0b43y3X5nHSGJBa65xa30w2MP6xzisKUgmU9FekSWtI+38yB/vcCBlrNEPA="
+        ),
+        model_id="anthropic.claude-3-5-sonnet-20240620-v1:0",
+        model_kwargs=dict(temperature=0)
     )
     '''
     llm = HuggingFaceHub(
@@ -114,13 +122,25 @@ def get_review(
 
         {question}
         """
+        prompt = ChatPromptTemplate.from_messages(
+            [
         
+                (
+                    "human",
+                    template,
+                )
+            ]
+        )
+        chain = prompt | llm
+        review_result=chain.invoke({"question": question})
+        '''
         prompt = PromptTemplate(template=template, input_variables=["question"])
         print("prompt : " + prompt.template)
         llm_chain = prompt | llm
         print("before chain:")
         review_result = llm_chain.invoke({"question": question})
-        print("review result:" + review_result)
+        '''
+        print("review result:" + review_result.content)
         chunked_reviews.append(review_result)
     
     # If the chunked reviews are only one, return it
@@ -136,9 +156,22 @@ def get_review(
     Diff:
     {question}
     """
+    prompt = ChatPromptTemplate.from_messages(
+        [
+        
+            (
+                "human",
+                template,
+            )
+        ]
+    )
+    chain = prompt | llm
+    summarized_review = chain.invoke({"question": question})
+    '''
     prompt = PromptTemplate(template=template, input_variables=["question"])
     llm_chain = LLMChain(prompt=prompt, llm=llm)
     summarized_review = llm_chain.run(question)
+    '''
     print("summarized result:" + summarized_review)
     return chunked_reviews, summarized_review
 

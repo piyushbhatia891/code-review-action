@@ -21,6 +21,14 @@ from langchain.prompts import PromptTemplate
 from loguru import logger 
 from langchain_google_genai import ChatGoogleGenerativeAI
 
+from langchain import LLMChain, HuggingFaceHub, PromptTemplate
+from langchain_openai import AzureChatOpenAI
+from loguru import logger
+from langchain_aws import ChatBedrock
+from langchain import PromptTemplate, LLMChain
+from langchain_core.prompts import ChatPromptTemplate
+import os
+import boto3
 
 
 
@@ -34,6 +42,9 @@ def check_required_env_vars():
         "GITHUB_REPOSITORY",
         "GITHUB_PULL_REQUEST_NUMBER",
         "GIT_COMMIT_HASH",
+        "AWS_ACCESS_KEY_ID",
+        "AWS_SECRET_ACCESS_KEY",
+        "AWS_SESSION_TOKEN"
     ]
     for required_env_var in required_env_vars:
         if os.getenv(required_env_var) is None:
@@ -56,6 +67,8 @@ def create_a_comment_to_pull_request(
         "commit_id": git_commit_hash,
         "event": "COMMENT"
     }
+    print("git commit hash:" + git_commit_hash)
+    print("body:" + body)
     url = f"https://api.github.com/repos/{github_repository}/pulls/{pull_request_number}/reviews"
     response = requests.post(url, headers=headers, data=json.dumps(data))
     return response
@@ -83,16 +96,27 @@ def get_review(
     chunked_diff_list = chunk_string(input_string=diff, chunk_size=prompt_chunk_size)
     # Get summary by chunk
     chunked_reviews = []
-    llm = ChatGoogleGenerativeAI(model="gemini-pro", google_api_key="AIzaSyAqP1tbsekrAoZjSM02OiefzPw_nMzPs9I")
+    # llm = ChatGoogleGenerativeAI(model="gemini-pro", google_api_key="AIzaSyAqP1tbsekrAoZjSM02OiefzPw_nMzPs9I")
+
+    llm = ChatBedrock(
+        client=boto3.client(
+            service_name="bedrock-runtime",
+            region_name="us-east-1"
+        ),
+        model_id="anthropic.claude-3-5-sonnet-20240620-v1:0",
+        model_kwargs=dict(temperature=0)
+    )
     '''
     llm = HuggingFaceHub(
-        repo_id=repo_id,
+        repo_id='tiiuae/falcon-7b-instruct',
         model_kwargs={"temperature": temperature,
                       "max_new_tokens": max_new_tokens,
                       "top_p": top_p,
                       "top_k": top_k},
                       huggingfacehub_api_token=os.getenv("API_KEY")
     )
+    
+    llm.client.api_url = 'https://api-inference.huggingface.co/models/tiiuae/falcon-7b-instruct'
     '''
     for chunked_diff in chunked_diff_list:
         question = chunked_diff
@@ -105,16 +129,26 @@ def get_review(
 
         {question}
         """
+        prompt = ChatPromptTemplate.from_messages(
+            [
         
+                (
+                    "human",
+                    template,
+                )
+            ]
+        )
+        chain = prompt | llm
+        review_result=chain.invoke({"question": question})
+        '''
         prompt = PromptTemplate(template=template, input_variables=["question"])
         print("prompt : " + prompt.template)
-        print("before chain:")
         llm_chain = prompt | llm
-        print("after chain:")
+        print("before chain:")
         review_result = llm_chain.invoke({"question": question})
-        print("result")
+        '''
+        print("review result:" + review_result.content)
         chunked_reviews.append(review_result)
-        print("results found")
     
     # If the chunked reviews are only one, return it
     if len(chunked_reviews) == 1:
@@ -129,14 +163,23 @@ def get_review(
     Diff:
     {question}
     """
-    
+    prompt = ChatPromptTemplate.from_messages(
+        [
+        
+            (
+                "human",
+                template,
+            )
+        ]
+    )
+    chain = prompt | llm
+    summarized_review = chain.invoke({"question": question})
+    '''
     prompt = PromptTemplate(template=template, input_variables=["question"])
-    print("prompt2 : " + prompt.template)
-    print("before chain2:")
-    llm_chain = prompt | llm
-    print("after chain2:")
-    summarized_review = llm_chain.invoke({"question": question})
-    print("results found2")
+    llm_chain = LLMChain(prompt=prompt, llm=llm)
+    summarized_review = llm_chain.run(question)
+    '''
+    print("summarized result:" + summarized_review)
     return chunked_reviews, summarized_review
 
 
@@ -187,8 +230,8 @@ def main(
         top_k=top_k,
         prompt_chunk_size=diff_chunk_size
     )
-    logger.debug(f"Summarized review: {summarized_review}")
-    logger.debug(f"Chunked reviews: {chunked_reviews}")
+    #logger.debug(f"Summarized review: {summarized_review}")
+    #logger.debug(f"Chunked reviews: {chunked_reviews}")
     
     # Format reviews
     review_comment = format_review_comment(summarized_review=summarized_review,

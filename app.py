@@ -33,7 +33,7 @@ import boto3
 
 
 def check_required_env_vars():  
-    print("hi")
+    print("hi2")
     list=[]
     """Check required environment variables"""
     required_env_vars = [

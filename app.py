@@ -61,6 +61,8 @@ def create_a_comment_to_pull_request(
         "path": path
     }
     print("git commit hash:" + git_commit_hash)
+    print("git repo:"+github_repository)
+    print("pull request:" + str(pull_request_number))
     url = f"https://api.github.com/repos/digitalneedstech/{github_repository}/pulls/{pull_request_number}/comments"
     response = requests.post(url, headers=headers, data=json.dumps(data))
     print("response:"+response.text)

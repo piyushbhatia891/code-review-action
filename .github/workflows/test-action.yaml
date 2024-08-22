@@ -49,7 +49,7 @@ jobs:
         with:
           accessKey: ${{ secrets.ACCESS_KEY }}
           secretKey: ${{ secrets.SECRET_KEY }}
-          sessionToken: ${{ secrets.SECRET_TOKEN }}
+          sessionToken: ${{ secrets.SESSION_TOKEN }}
           apiKey: "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"
           githubToken: "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"
           githubRepository: ${{ github.repository }}

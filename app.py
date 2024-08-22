@@ -117,7 +117,6 @@ def get_review(
         location, and potential effects on the overall functionality and performance of the application.
         Present the potential issues and errors first, following by the most important findings, in your summary
         Important: Include block of code / diff in the summary also the line number.
-        Important: Include block of code / diff in the summary also the line number.
     the summary should be a json formatted list with objects containing line number, comment and file name for the line
         Diff:
 
@@ -134,6 +133,7 @@ def get_review(
         )
         chain = prompt | llm
         review_result=chain.invoke({"question": question}).content
+        print("review result:"+review_result)
         '''
         prompt = PromptTemplate(template=template, input_variables=["question"])
         print("prompt : " + prompt.template)

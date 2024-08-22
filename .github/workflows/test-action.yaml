@@ -51,7 +51,7 @@ jobs:
           secretKey: ${{ secrets.SECRET_KEY }}
           sessionToken: ${{ secrets.SESSION_TOKEN }}
           apiKey: "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"
-          githubToken: "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"
+          githubToken: "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"
           githubRepository: ${{ github.repository }}
           githubPullRequestNumber: ${{ github.event.pull_request.number }}
           gitCommitHash: ${{ github.event.pull_request.head.sha }}

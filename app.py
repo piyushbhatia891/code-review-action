@@ -14,7 +14,7 @@ import json
 import os
 from typing import List     
 
-import click  
+import click2  
 import requests  
 from langchain import LLMChain    
 from langchain.prompts import PromptTemplate

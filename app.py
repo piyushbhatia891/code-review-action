@@ -13,7 +13,7 @@ import json
 import os
 from typing import List
 
-import click
+import click 
 import requests
 from langchain import LLMChain, HuggingFaceHub, PromptTemplate
 from langchain_openai import AzureChatOpenAI
